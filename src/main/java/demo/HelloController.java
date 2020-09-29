@@ -2,6 +2,7 @@ package demo;
 
 import annotation.ZAutowired;
 import annotation.ZController;
+import annotation.ZRequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +17,8 @@ import java.io.PrintWriter;
  * Description: .
  */
 
-@ZController("/hello")
+@ZController()
+@ZRequestMapping("/hello")
 public class HelloController {
 
     @ZAutowired("HelloServiceImpl")
