@@ -13,7 +13,8 @@ import annotation.ZService;
 @ZService
 public class HelloServiceImpl implements HelloService {
 
-    public String getName(String name) {
-        return "HelloServiceImpl" + name;
+    @Override
+    public String getName(String greeting) {
+        return greeting + ", " + this.getClass().getName();
     }
 }

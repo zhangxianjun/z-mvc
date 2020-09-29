@@ -15,6 +15,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,8 +92,9 @@ public class DispatcherServlet extends HttpServlet {
 
             Class cls = instance.getClass();
 
+
             if (cls.isAnnotationPresent(ZController.class)) {
-                Field[] fields = cls.getFields();
+                Field[] fields = cls.getDeclaredFields();
 
                 for (Field f : fields) {
 
@@ -100,9 +102,13 @@ public class DispatcherServlet extends HttpServlet {
 
                         ZAutowired autowired = f.getAnnotation(ZAutowired.class);
 
-                        String key = autowired.value();
+//                        String key = autowired.value();
 
-                        // 获取注解的对象
+                        // 获取注解的对象  demo.HelloServiceImpl
+                        String key = f.getType().getName();
+
+                        System.out.println("注入成员变量" + key);
+
                         Object bean = beans.get(key);
 
                         f.setAccessible(true);
@@ -148,9 +154,14 @@ public class DispatcherServlet extends HttpServlet {
                     // 获取注解
                     ZService mapping = (ZService) cls.getAnnotation(ZService.class);
 
+
                     String key = mapping.value();
 
-                    beans.put(key, instance);
+                    // demo.HelloServiceImpl
+
+                    System.out.println("IOC存储的bean " + cls.getName());
+
+                    beans.put(cls.getName(), instance);
                 } else {
                     continue;
                 }
@@ -171,8 +182,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private void scanBasePackage(String basePackage) {
         // 编译好的类路径
-        String path = "/" + basePackage.replaceAll("\\.", "/");
-        URL url = this.getClass().getClassLoader().getResource(path);
+//        String path = "/" + basePackage.replaceAll("\\.", "/");
+        URL url = this.getClass().getClassLoader().getResource(basePackage);
 
         String rootPath = url.getFile();
 
@@ -183,11 +194,13 @@ public class DispatcherServlet extends HttpServlet {
         String[] subFilePaths = file.list();
 
         for (String sfp : subFilePaths) {
-            File f = new File(rootPath + sfp);
+            File f = new File(rootPath + "/"+ sfp);
+
             if (f.isDirectory()) {
-                scanBasePackage(basePackage + "." + sfp);
+                scanBasePackage(basePackage + "/" + sfp);
             } else {
-                classNames.add(basePackage + "." + f.getName());
+//                classNames.add(f.getName());
+                classNames.add("demo." + f.getName());
             }
         }
     }
@@ -203,7 +216,7 @@ public class DispatcherServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        super.doPost(req, resp);
+//        super.doPost(req, resp);
 
         String uri = req.getRequestURI();
 
@@ -215,19 +228,21 @@ public class DispatcherServlet extends HttpServlet {
 
         Method method = (Method) urls.get(path);
 
-        Class[] argsCls = method.getParameterTypes();
+        Parameter[] parameters = method.getParameters();
 
-        Object[] args = new Object[argsCls.length];
+        Object[] args = new Object[parameters.length];
 
 
         int args_i = 0;
         int index = 0;
-        for (Class cls : argsCls) {
-            if (ServletRequest.class.isAssignableFrom(cls)) {
+        for (Parameter p : parameters) {
+            if (ServletRequest.class.isAssignableFrom(p.getType())) {
                 args[args_i++] = req;
+                continue;
             }
-            if (ServletResponse.class.isAssignableFrom(cls)) {
+            if (ServletResponse.class.isAssignableFrom(p.getType())) {
                 args[args_i++] = resp;
+                continue;
             }
 
             Annotation[] pas = method.getParameterAnnotations()[index];
@@ -239,7 +254,10 @@ public class DispatcherServlet extends HttpServlet {
                         args[args_i++] = req.getParameter(rp.value());
                     }
                 }
+            } else {
+                args[args_i++] = req.getParameter(p.getName());
             }
+
             index++;
         }
 

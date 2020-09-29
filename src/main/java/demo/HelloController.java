@@ -21,12 +21,15 @@ import java.io.PrintWriter;
 @ZRequestMapping("/hello")
 public class HelloController {
 
-    @ZAutowired("HelloServiceImpl")
-    private HelloService helloService;
+    public String name = "zxj";
 
-    public void sayHello(HttpServletRequest request, HttpServletResponse response) {
+    @ZAutowired()
+    private HelloServiceImpl helloServiceImpl;
 
-        String content = helloService.getName("Hello");
+    @ZRequestMapping("/say")
+    public void sayHello(HttpServletRequest request, HttpServletResponse response, String greeting) {
+
+        String content = helloServiceImpl.getName(greeting);
 
 
         try {
