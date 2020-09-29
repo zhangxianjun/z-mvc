@@ -1,0 +1,22 @@
+@startuml
+
+/'
+    注解：元注解
+    @Retention注解时机
+    @Target注解位置
+    @Inherited 是否允许子类集成
+
+    反射：
+    1.获取class类 Class.forName(package + class name);
+    2.创建class实例对象 class.newInstance();
+    3.根据实例获取类 clazz.getClass();
+    4.获取类定义的属性 class.getDeclaredFields();
+    5.获取类定义的方法 class.getMethods();
+    6.调用方法 method.invoke(a, args[])
+    7.获取请求路径 request.getRequestURI()
+'/
+
+
+if ("xxxxx") then (no)
+
+@enduml
