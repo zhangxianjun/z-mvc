@@ -57,7 +57,7 @@ public class DispatcherServlet extends HttpServlet {
 
     }
 
-    public void urlMapping() {
+    private void urlMapping() {
         for (Map.Entry<String, Object> entry : beans.entrySet()) {
 
             Object instance = entry.getValue();
@@ -84,7 +84,7 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
-    public void autoWired() {
+    private void autoWired() {
 
         for (Map.Entry<String, Object> entry : beans.entrySet()) {
 
@@ -130,7 +130,7 @@ public class DispatcherServlet extends HttpServlet {
 
 
 
-    public void instanceClass() {
+    private void instanceClass() {
         for (String cn : classNames) {
             cn = cn.replace(".class", "");
 
